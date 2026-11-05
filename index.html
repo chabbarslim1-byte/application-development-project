@@ -1,72 +1,170 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>رواق | الكتب المسموعة</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#101827;color:white;font-family:Tahoma,Arial}
-header{background:#1d2b40;padding:25px;text-align:center}
-h1{color:#e9bd73;margin:0}
-header p{color:#cbd5e1}
-main{padding:18px;max-width:650px;margin:auto}
-input{width:100%;padding:15px;border-radius:12px;border:0;font-size:17px}
-.book{background:#202e43;padding:18px;margin-top:15px;border-radius:15px}
-.book h3{color:#f2c879}
-.book p{color:#cbd5e1}
-button{background:#e9bd73;color:#101827;border:0;border-radius:10px;padding:12px;font-size:16px;cursor:pointer}
-audio{width:100%;margin-top:12px}
-footer{text-align:center;padding:25px;color:#94a3b8}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>رواق | الكتب والقصص المسموعة</title>
+  
+  <!-- PWA & Mobile Optimization for Samsung / Android -->
+  <meta name="theme-color" content="#101a2f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="تطبيق رواق للكتب المسموعة والملخصات التاريخية والتونسية برواية صوتية متقنة">
+  
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-<header>
-<h1>📚 رواق</h1>
-<p>عالم الكتب المسموعة العربية</p>
-</header>
-<main>
-<input id="search" placeholder="🔎 ابحث عن كتاب..." oninput="filterBooks()">
-<div id="library"></div>
-</main>
-<footer>رواق — مكتبتك الصوتية</footer>
-<script>
-const books=[
-{title:"مقدمة ابن خلدون",author:"ابن خلدون"},
-{title:"الأيام",author:"طه حسين"},
-{title:"حي بن يقظان",author:"ابن طفيل"},
-{title:"كليلة ودمنة",author:"ابن المقفع"},
-{title:"ألف ليلة وليلة",author:"من التراث العربي"}
-];
-const library=document.getElementById("library");
-function showBooks(list){
-library.innerHTML="";
-list.forEach(book=>{
-const card=document.createElement("div");
-card.className="book";
-const title=document.createElement("h3");
-title.textContent=book.title;
-const author=document.createElement("p");
-author.textContent="✍️ "+book.author;
-const button=document.createElement("button");
-button.textContent="▶ استمع الآن";
-button.onclick=()=>speak(book.title+"، تأليف "+book.author);
-card.append(title,author,button);
-library.appendChild(card);
-});
-}
-function speak(text){
-speechSynthesis.cancel();
-const voice=new SpeechSynthesisUtterance(text);
-voice.lang="ar";
-voice.rate=0.85;
-speechSynthesis.speak(voice);
-}
-function filterBooks(){
-const q=document.getElementById("search").value.trim();
-showBooks(books.filter(b=>b.title.includes(q)||b.author.includes(q)));
-}
-showBooks(books);
-</script>
+
+  <!-- ==================== رأس التطبيق والشريط العلوي ==================== -->
+  <header class="app-header">
+    <div class="app-container">
+      <div class="header-top">
+        <div class="brand">
+          <div class="brand-icon">📚</div>
+          <div>
+            <h1>رواق</h1>
+            <p class="brand-sub">ملخصات وقصص مسموعة من التراث وتاريخ تونس</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="installBtn" class="install-btn" aria-label="تثبيت التطبيق كـ PWA">
+            <span>📲</span> تثبيت التطبيق
+          </button>
+        </div>
+      </div>
+
+      <!-- مربع البحث السريع -->
+      <div class="search-box">
+        <span class="search-icon">🔎</span>
+        <input 
+          id="searchInput" 
+          type="search" 
+          class="search-input" 
+          placeholder="ابحث عن كتاب، مؤلف، ملحمة تاريخية..." 
+          aria-label="البحث في رواق"
+          autocomplete="off"
+        >
+        <button id="clearSearch" class="clear-search" aria-label="مسح البحث">✕</button>
+      </div>
+
+      <!-- شريط التصنيفات السريعة -->
+      <div class="categories-scroll">
+        <button class="category-pill active" data-category="all">🌟 الكل</button>
+        <button class="category-pill" data-category="tunis">🇹🇳 تونس وتاريخها</button>
+        <button class="category-pill" data-category="literature">📖 أدب وروايات</button>
+        <button class="category-pill" data-category="philosophy">🧠 فلسفة وفكر</button>
+        <button class="category-pill" data-category="history">🏛️ تاريخ وحضارة</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== المحتوى الرئيسي ==================== -->
+  <main class="app-container">
+    
+    <!-- بطاقة استئناف الاستماع السريع -->
+    <section id="resumeBanner" class="resume-banner" aria-label="استئناف الاستماع">
+      <div class="resume-info">
+        <div class="resume-icon">🎧</div>
+        <div>
+          <div class="resume-title" id="resumeTitle">اسم الكتاب الأخير</div>
+          <div class="resume-subtitle">اضغط للمتابعة من حيث توقفت</div>
+        </div>
+      </div>
+      <button id="resumeBtn" class="resume-btn">
+        <span>▶</span> متابعة
+      </button>
+    </section>
+
+    <!-- قائمة عرض الكتب والملخصات -->
+    <section id="library" class="library-grid" aria-label="مكتبة الكتب والملخصات"></section>
+
+    <!-- حالة القائمة الفارغة -->
+    <div id="emptyState" class="empty-state">
+      <div class="empty-state-icon">📖</div>
+      <p id="emptyMsg">لا توجد نتائج تطابق بحثك الحالي.</p>
+    </div>
+
+    <!-- لوحة الإعدادات وتخصيص الصوت -->
+    <section id="settingsPanel" class="settings-panel" aria-label="الإعدادات">
+      <div class="settings-group">
+        <label for="voiceSelect">🗣️ اختيار الصوت العربي (المتوفر على جهازك / سامسونج)</label>
+        <select id="voiceSelect" class="settings-select">
+          <option value="">جارٍ تحميل الأصوات العربية المتاحة...</option>
+        </select>
+        <p style="font-size:0.8rem; color:var(--text-dim); margin-top:6px;">
+          * تدعم سامسونج وأندرويد أصواتاً عربية طبيعية عالية الجودة في إعدادات تحويل النص إلى كلام (TTS).
+        </p>
+      </div>
+
+      <div class="settings-group">
+        <label>⚡ سرعة القراءة الصوتية</label>
+        <div class="speed-selector-group">
+          <button class="speed-btn-choice" data-speed="0.8">0.8x بطيء</button>
+          <button class="speed-btn-choice active" data-speed="1.0">1.0x عادي</button>
+          <button class="speed-btn-choice" data-speed="1.25">1.25x سريع</button>
+          <button class="speed-btn-choice" data-speed="1.5">1.5x أسرع</button>
+        </div>
+      </div>
+
+      <div class="settings-group" style="border-top:1px solid var(--border-color); padding-top:18px;">
+        <label>ℹ️ حول تطبيق رواق</label>
+        <p style="font-size:0.88rem; color:var(--text-muted); line-height:1.8;">
+          <strong>رواق</strong> هو تطبيق ويب تقدمي (PWA) مخصص لعشاق المعرفة والكتب المسموعة، يجمع بين كلاسيكيات التراث الإنساني وملاحم وأدب <strong>تاريخ تونس</strong> (من قرطاج وحنبعل إلى ابن خلدون والقيروان، ورواد النهضة كالشابي والدوعاجي والمسعدي).
+        </p>
+        <ul style="margin:10px 24px; font-size:0.85rem; color:var(--text-muted);">
+          <li>يعمل دون اتصال بالإنترنت (Offline Mode).</li>
+          <li>محسن بالكامل لشاشات الهواتف وأجهزة سامسونج الذكية.</li>
+          <li>يحفظ تلقائياً موضع الاستماع وكتبك المفضلة.</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== المشغل الصوتي العائم (Mini Player) ==================== -->
+  <div id="miniPlayer" class="mini-player" aria-label="مشغل الصوت">
+    <div class="mini-player-progress-bar">
+      <div id="miniProgress" class="mini-player-progress-fill"></div>
+    </div>
+    <div class="mini-player-content">
+      <div class="mini-player-info">
+        <div id="miniTitle" class="mini-player-title">عنوان الكتاب</div>
+        <div id="miniAuthor" class="mini-player-author">المؤلف</div>
+      </div>
+      <div class="mini-player-controls">
+        <button id="miniSpeedBtn" class="speed-badge-btn" title="تغيير السرعة">1.0x</button>
+        <button id="miniPlayBtn" class="player-btn play-toggle" title="تشغيل / إيقاف مؤقت">▶</button>
+        <button id="miniStopBtn" class="player-btn" title="إيقاف نهائي">⏹</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== شريط التنقل السفلي (Bottom Nav) ==================== -->
+  <nav class="bottom-nav" aria-label="شريط التنقل الرئيسي">
+    <button class="nav-tab-btn active" data-tab="all">
+      <span class="tab-icon">📚</span>
+      <span>المكتبة</span>
+    </button>
+    <button class="nav-tab-btn" data-tab="tunis">
+      <span class="tab-icon">🇹🇳</span>
+      <span>تاريخ تونس</span>
+    </button>
+    <button class="nav-tab-btn" data-tab="favs">
+      <span class="tab-icon">⭐</span>
+      <span>المفضلة</span>
+    </button>
+    <button class="nav-tab-btn" data-tab="settings">
+      <span class="tab-icon">⚙️</span>
+      <span>الإعدادات</span>
+    </button>
+  </nav>
+
+  <!-- سكربتات التطبيق -->
+  <script src="./js/data.js"></script>
+  <script src="./js/player.js"></script>
+  <script src="./js/app.js"></script>
 </body>
 </html>

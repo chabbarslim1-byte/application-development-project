@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>رواق | الكتب المسموعة</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101827;color:white;font-family:Tahoma,Arial}
+header{background:#1d2b40;padding:25px;text-align:center}
+h1{color:#e9bd73;margin:0}
+header p{color:#cbd5e1}
+main{padding:18px;max-width:650px;margin:auto}
+input{width:100%;padding:15px;border-radius:12px;border:0;font-size:17px}
+.book{background:#202e43;padding:18px;margin-top:15px;border-radius:15px}
+.book h3{color:#f2c879}
+.book p{color:#cbd5e1}
+button{background:#e9bd73;color:#101827;border:0;border-radius:10px;padding:12px;font-size:16px;cursor:pointer}
+audio{width:100%;margin-top:12px}
+footer{text-align:center;padding:25px;color:#94a3b8}
+</style>
+</head>
+<body>
+<header>
+<h1>📚 رواق</h1>
+<p>عالم الكتب المسموعة العربية</p>
+</header>
+<main>
+<input id="search" placeholder="🔎 ابحث عن كتاب..." oninput="filterBooks()">
+<div id="library"></div>
+</main>
+<footer>رواق — مكتبتك الصوتية</footer>
+<script>
+const books=[
+{title:"مقدمة ابن خلدون",author:"ابن خلدون"},
+{title:"الأيام",author:"طه حسين"},
+{title:"حي بن يقظان",author:"ابن طفيل"},
+{title:"كليلة ودمنة",author:"ابن المقفع"},
+{title:"ألف ليلة وليلة",author:"من التراث العربي"}
+];
+const library=document.getElementById("library");
+function showBooks(list){
+library.innerHTML="";
+list.forEach(book=>{
+const card=document.createElement("div");
+card.className="book";
+const title=document.createElement("h3");
+title.textContent=book.title;
+const author=document.createElement("p");
+author.textContent="✍️ "+book.author;
+const button=document.createElement("button");
+button.textContent="▶ استمع الآن";
+button.onclick=()=>speak(book.title+"، تأليف "+book.author);
+card.append(title,author,button);
+library.appendChild(card);
+});
+}
+function speak(text){
+speechSynthesis.cancel();
+const voice=new SpeechSynthesisUtterance(text);
+voice.lang="ar";
+voice.rate=0.85;
+speechSynthesis.speak(voice);
+}
+function filterBooks(){
+const q=document.getElementById("search").value.trim();
+showBooks(books.filter(b=>b.title.includes(q)||b.author.includes(q)));
+}
+showBooks(books);
+</script>
+</body>
+</html>
